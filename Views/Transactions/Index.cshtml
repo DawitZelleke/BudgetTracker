@@ -1,0 +1,73 @@
+@model IEnumerable<BudgetTracker.DataAccess.Transaction>
+
+@{
+    ViewData["Title"] = "Transactions";
+}
+
+<div class="page-header">
+    <h1>Transactions</h1>
+    <a asp-action="Create" class="btn btn-brand">+ New transaction</a>
+</div>
+
+<table class="table ledger-table">
+    <thead>
+        <tr>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSort"]">
+                    Date @Html.Raw(SortIndicator("date"))
+                </a>
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["DescriptionSort"]">
+                    Description @Html.Raw(SortIndicator("description"))
+                </a>
+            </th>
+            <th>Category</th>
+            <th>Type</th>
+            <th class="text-end">
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["AmountSort"]">
+                    Amount @Html.Raw(SortIndicator("amount"))
+                </a>
+            </th>
+            <th class="text-end">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.TransactionDate.ToString("yyyy-MM-dd")</td>
+                <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                <td>@item.Category?.Name</td>
+                <td>
+                    <span class="type-badge @(item.TransactionType == "Income" ? "type-income" : "type-expense")">
+                        @item.TransactionType
+                    </span>
+                </td>
+                <td class="text-end amount">@item.Amount.ToString("C")</td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@item.Id"
+                       class="btn btn-sm btn-outline-brand">Edit</a>
+
+                    <form asp-action="Delete" asp-route-id="@item.Id"
+                          method="post" class="d-inline"
+                          onsubmit="return confirm('Delete this transaction? This cannot be undone.');">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@functions {
+    // Shows an up/down arrow beside the column currently being sorted.
+    string SortIndicator(string column)
+    {
+        var current = ViewData["CurrentSort"] as string ?? "";
+        if (current == column) return "&#9650;";                       // ascending
+        if (current == column + "_desc") return "&#9660;";             // descending
+        if (column == "date" && current == "") return "&#9660;";       // default: newest first
+        return "";
+    }
+}
