@@ -1,0 +1,107 @@
+@model IEnumerable<BudgetTracker.DataAccess.Transaction>
+
+@{
+    ViewData["Title"] = "Transactions";
+    var income  = Model.Where(t => t.TransactionType == "Income").Sum(t => t.Amount);
+    var expense = Model.Where(t => t.TransactionType == "Expense").Sum(t => t.Amount);
+    var net     = income - expense;
+}
+
+<div class="page-header">
+    <h1>Transactions</h1>
+    <a asp-action="Create" class="btn btn-brand">New transaction</a>
+</div>
+
+<div class="summary-strip">
+    <div class="summary-cell">
+        <div class="summary-label">Money in</div>
+        <div class="summary-value is-credit">@income.ToString("C")</div>
+    </div>
+    <div class="summary-cell">
+        <div class="summary-label">Money out</div>
+        <div class="summary-value is-debit">@expense.ToString("C")</div>
+    </div>
+    <div class="summary-cell">
+        <div class="summary-label">Net</div>
+        <div class="summary-value @(net >= 0 ? "is-credit" : "is-debit")">@net.ToString("C")</div>
+    </div>
+</div>
+
+<div class="ledger-wrap">
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <p>No transactions yet.</p>
+            <a asp-action="Create" class="btn btn-brand">Log your first one</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table ledger-table">
+                <thead>
+                    <tr>
+                        <th>
+                            <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSort"]">
+                                Date @Html.Raw(SortIndicator("date"))
+                            </a>
+                        </th>
+                        <th>
+                            <a asp-action="Index" asp-route-sortOrder="@ViewData["DescriptionSort"]">
+                                Description @Html.Raw(SortIndicator("description"))
+                            </a>
+                        </th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th class="text-end">
+                            <a asp-action="Index" asp-route-sortOrder="@ViewData["AmountSort"]">
+                                Amount @Html.Raw(SortIndicator("amount"))
+                            </a>
+                        </th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.TransactionDate.ToString("MMM d, yyyy")</td>
+                            <td>@item.Description</td>
+                            <td>@item.Category?.Name</td>
+                            <td>
+                                <span class="type-badge @(item.TransactionType == "Income" ? "type-income" : "type-expense")">
+                                    @item.TransactionType
+                                </span>
+                            </td>
+                            <td class="text-end amount">@item.Amount.ToString("C")</td>
+                            <td>
+                                <div class="row-actions">
+                                    <a asp-action="Edit" asp-route-id="@item.Id"
+                                       class="btn btn-sm btn-outline-brand">Edit</a>
+
+                                    <form asp-action="Delete" asp-route-id="@item.Id"
+                                          method="post"
+                                          onsubmit="return confirm('Delete this transaction? This cannot be undone.');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@functions {
+    // Shows an up/down arrow beside the column currently being sorted.
+    string SortIndicator(string column)
+    {
+        var current = ViewData["CurrentSort"] as string ?? "";
+        if (current == column) return "&#9650;";                       // ascending
+        if (current == column + "_desc") return "&#9660;";             // descending
+        if (column == "date" && current == "") return "&#9660;";       // default: newest first
+        return "";
+    }
+}

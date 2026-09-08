@@ -1,48 +1,67 @@
-# BudgetTracker
+# Ledgerline — Budget Tracker
 
-## Objective
-Using .NET MVC, Entity Framework, and the provided database, create a budgeting web application that allows a user to log transactions, set monthly allocations, and track their budget progress. 
+An ASP.NET Core MVC web application for logging personal income and expense
+transactions against a set of spending categories. Built on Entity Framework
+Core over a SQLite database.
 
-## .NET CLI Commands
+## Features
+
+- **Transaction ledger** — create, edit and delete income and expense entries,
+  each tagged with a category, date, amount and description.
+- **Sortable columns** — the Date, Description and Amount headers toggle between
+  ascending and descending. Sorting is applied to the `IQueryable` before it is
+  materialised, so SQLite does the ordering rather than the view.
+- **Inline delete** — deletes go through a `POST` with an antiforgery token and a
+  client-side `confirm()` dialog, instead of the scaffolded two-step
+  GET-confirmation page.
+- **Audit timestamps** — `CreatedAt` is set once on insert and preserved on
+  update; `UpdatedAt` is refreshed server-side on every edit. The edit action
+  reloads the tracked entity and copies fields onto it, so a client cannot
+  overwrite `CreatedAt` by posting it back.
+
+## Stack
+
+| | |
+|---|---|
+| Framework | ASP.NET Core MVC (.NET 10) |
+| Data access | Entity Framework Core 8, SQLite provider |
+| Views | Razor, Bootstrap 5, jQuery unobtrusive validation |
+| Database | SQLite (`BudgetTracker.db`, committed with sample data) |
+
+## Running it
 
 ```bash
-# Creating a new MVC web application in current directory
-dotnet new mvc
-
-# Creating a new MVC web application in new directory
-dotnet new mvc -o {OUTPUT_DIRECTORY}
-
-# Add a package
-dotnet add package {PACKAGE_NAME}
-
-# Builds web application and deploys local server
+git clone https://github.com/DawitZelleke/budget-tracker-aspnet.git
+cd budget-tracker-aspnet
+libman restore     # fetches Bootstrap and jQuery into wwwroot/lib
+dotnet restore
 dotnet run
+```
 
-# Build web application and deploys local server with hot reload
-dotnet watch
+Then open `https://localhost:7153`. The default route lands on
+`Transactions/Index`.
 
-# Installing Entity Framework and related packages
-dotnet add package Microsoft.EntityFrameworkCore
-dotnet add package Microsoft.EntityFrameworkCore.Sqlite
-dotnet add package Microsoft.EntityFrameworkCore.SqlServer
-dotnet add package Microsoft.EntityFrameworkCore.Design
-dotnet add package Microsoft.EntityFrameworkCore.Tools
+The connection string lives in `appsettings.json` under
+`ConnectionStrings:BudgetTrackerConnection` and points at the SQLite file in the
+project root, so no database setup is needed.
 
-# Install global tools for Entity Framework
-dotnet tool install --global dotnet-ef
+## Data model
 
-# Generating the DB Context for Entity Framework
-dotnet ef dbcontext scaffold {DB_CONNECTION_STRING} Microsoft.EntityFrameworkCore.Sqlite --output-dir {OUTPUT_DIRECTORY}
+```
+Category (Id, Name)
+    └── Transaction (Id, Amount, TransactionDate, TransactionType,
+                     CategoryId, Description, CreatedAt, UpdatedAt)
+```
 
-# Template generation
-dotnet tool install --global dotnet-aspnet-codegenerator
-dotnet add package Microsoft.VisualStudio.Web.CodeGeneration.Design
+`TransactionsController.Index` eager-loads `Category` with `.Include()` so the
+ledger renders category names without an N+1 query, and calls `.AsNoTracking()`
+since the list is read-only.
 
-# Generating CRUD MVC Controller using Entity Framework
-dotnet aspnet-codegenerator controller \
-  -name {CONTROLLER_NAME} \
-  -m {MODEL_NAME} \
-  -dc {DB_CONTEXT} \
-  --relativeFolderPath Controllers \
-  --useDefaultLayout
+## Project layout
+
+```
+Controllers/     TransactionsController (CRUD + sorting), HomeController
+DataAccess/      BudgetTrackerContext, Transaction, Category entities
+Views/           Transactions/ (Index, Create, Edit), Shared/ (_Layout)
+wwwroot/         site.css (Ledgerline theme), site.js
 ```

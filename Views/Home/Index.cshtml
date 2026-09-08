@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Overview";
+}
+
+<div class="page-header">
+    <h1>Ledgerline</h1>
+    <a asp-controller="Transactions" asp-action="Index" class="btn btn-brand">Open the ledger</a>
+</div>
+
+<p class="page-lede">
+    A running record of money in and money out, sorted by date, description or
+    amount. Every entry is tagged with a category so you can see where it went.
+</p>
+
+<div class="summary-strip">
+    <div class="summary-cell">
+        <div class="summary-label">Log it</div>
+        <p class="mb-0">Record income and expenses against ten spending categories.</p>
+    </div>
+    <div class="summary-cell">
+        <div class="summary-label">Sort it</div>
+        <p class="mb-0">Reorder the ledger by any of date, description or amount.</p>
+    </div>
+    <div class="summary-cell">
+        <div class="summary-label">Total it</div>
+        <p class="mb-0">See money in, money out and the net position at a glance.</p>
+    </div>
+</div>
