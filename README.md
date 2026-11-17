@@ -1,8 +1,14 @@
-# Ledgerline — Budget Tracker
+# Budget Tracker
 
 An ASP.NET Core MVC web application for logging personal income and expense
 transactions against a set of spending categories. Built on Entity Framework
 Core over a SQLite database.
+
+## Project context
+
+Academic ASP.NET Core MVC project extended from scaffolded CRUD screens. The main contributions are query-side sorting, server-controlled timestamps, and antiforgery-protected update and deletion flows.
+
+Start with [TransactionsController.cs](Controllers/TransactionsController.cs) to inspect those decisions. The project is also called Ledgerline in its interface.
 
 ## Features
 
@@ -31,8 +37,8 @@ Core over a SQLite database.
 ## Running it
 
 ```bash
-git clone https://github.com/DawitZelleke/budget-tracker-aspnet.git
-cd budget-tracker-aspnet
+git clone https://github.com/DawitZelleke/BudgetTracker.git
+cd BudgetTracker
 libman restore     # fetches Bootstrap and jQuery into wwwroot/lib
 dotnet restore
 dotnet run
@@ -65,3 +71,19 @@ DataAccess/      BudgetTrackerContext, Transaction, Category entities
 Views/           Transactions/ (Index, Create, Edit), Shared/ (_Layout)
 wwwroot/         site.css (Ledgerline theme), site.js
 ```
+
+## Evaluation and limitations
+
+Use the .NET 10 SDK. If `libman` is unavailable, install its CLI with `dotnet tool install --global Microsoft.Web.LibraryManager.Cli` and ensure the .NET tools directory is on PATH. Follow the URL printed by `dotnet run`; launch-profile URLs can vary.
+
+The transaction controller does not implement user authentication or per-user ownership. This is a local academic demonstration, not a hosted personal-finance service. No automated regression-test result is claimed here.
+
+To evaluate the behavior locally:
+
+1. Create a transaction with a category and verify it appears in the list.
+2. Sort by date, description, and amount in both directions.
+3. Edit a record and verify its creation timestamp is unchanged.
+4. Cancel a deletion, then confirm one, and verify the corresponding outcomes.
+5. Submit a change without a valid antiforgery token and verify rejection.
+
+Next engineering priorities: automate those checks, add user isolation, and replace the checked-in sample database with reproducible migrations and seed data.
