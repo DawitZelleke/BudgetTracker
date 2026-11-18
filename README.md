@@ -6,7 +6,7 @@ Core over a SQLite database.
 
 ## Project context
 
-Academic ASP.NET Core MVC project extended from scaffolded CRUD screens. The main contributions are query-side sorting, server-controlled timestamps, and antiforgery-protected update and deletion flows.
+Academic ASP.NET Core MVC project. My work beyond the base CRUD: database-side sorting, server-controlled timestamps, and antiforgery-protected edit and delete flows.
 
 Start with [TransactionsController.cs](Controllers/TransactionsController.cs) to inspect those decisions. The project is also called Ledgerline in its interface.
 
@@ -76,7 +76,7 @@ wwwroot/         site.css (Ledgerline theme), site.js
 
 Use the .NET 10 SDK. If `libman` is unavailable, install its CLI with `dotnet tool install --global Microsoft.Web.LibraryManager.Cli` and ensure the .NET tools directory is on PATH. Follow the URL printed by `dotnet run`; launch-profile URLs can vary.
 
-The transaction controller does not implement user authentication or per-user ownership. This is a local academic demonstration, not a hosted personal-finance service. No automated regression-test result is claimed here.
+Known limitations: no user accounts or per-user data isolation yet.
 
 To evaluate the behavior locally:
 
